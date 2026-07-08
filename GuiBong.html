@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Thư online</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top, rgba(255, 244, 213, 0.95), rgba(202, 164, 112, 0.82) 45%, rgba(106, 70, 42, 0.88)),
+        repeating-linear-gradient(
+          35deg,
+          rgba(255, 255, 255, 0.035) 0px,
+          rgba(255, 255, 255, 0.035) 2px,
+          transparent 2px,
+          transparent 9px
+        );
+      font-family: 'Playfair Display', serif;
+      color: #4b2e1e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 18px;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(120, 72, 38, 0.12), transparent 24%),
+        radial-gradient(circle at 82% 28%, rgba(255, 240, 190, 0.16), transparent 28%),
+        radial-gradient(circle at 50% 90%, rgba(80, 48, 28, 0.16), transparent 34%);
+      pointer-events: none;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 428px;
+      min-height: 90vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .envelope-screen {
+      width: 100%;
+      text-align: center;
+    }
+
+    .envelope {
+      width: 100%;
+      max-width: 340px;
+      height: 230px;
+      margin: 0 auto 30px;
+      position: relative;
+      background: linear-gradient(180deg, #c58b55, #a96a3c);
+      border-radius: 0 0 18px 18px;
+      box-shadow: 0 20px 42px rgba(0, 0, 0, 0.38);
+      overflow: hidden;
+    }
+
+    .envelope-back-flap {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 128px;
+      background: linear-gradient(135deg, #c99763, #9d6236);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      transform-origin: top center;
+      transition: transform 0.9s ease;
+      z-index: 1;
+    }
+
+    .paper-preview {
+      position: absolute;
+      left: 26px;
+      right: 26px;
+      top: 54px;
+      height: 132px;
+      background:
+        linear-gradient(rgba(255, 238, 195, 0.96), rgba(237, 207, 152, 0.98)),
+        repeating-linear-gradient(
+          0deg,
+          transparent 0,
+          transparent 26px,
+          rgba(110, 70, 40, 0.08) 27px
+        );
+      border-radius: 10px;
+      box-shadow: 0 9px 20px rgba(0, 0, 0, 0.24);
+      z-index: 5;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-family: 'Dancing Script', cursive;
+      font-size: 25px;
+      line-height: 1.25;
+      color: #5a3322;
+      transition: transform 0.9s ease, opacity 0.9s ease;
+    }
+
+    .envelope-front {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 105px;
+      background: linear-gradient(180deg, #b97843, #a46438);
+      clip-path: polygon(0 0, 50% 46%, 100% 0, 100% 100%, 0 100%);
+      z-index: 3;
+    }
+
+    .envelope-left {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 50%;
+      height: 135px;
+      background: linear-gradient(35deg, #b77542 0%, #c78952 100%);
+      clip-path: polygon(0 0, 100% 55%, 0 100%);
+      z-index: 4;
+      opacity: 0.5;
+    }
+
+    .envelope-right {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 50%;
+      height: 135px;
+      background: linear-gradient(-35deg, #a86639 0%, #bd7f4b 100%);
+      clip-path: polygon(100% 0, 0 55%, 100% 100%);
+      z-index: 4;
+      opacity: 0.5;
+    }
+
+    .open-button {
+      border: none;
+      background: linear-gradient(180deg, #8a4a2c, #6f371f);
+      color: #fff4df;
+      padding: 15px 34px;
+      border-radius: 999px;
+      font-size: 20px;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+
+    .open-button:active {
+      transform: scale(0.96);
+    }
+
+    .open-button:hover {
+      filter: brightness(1.05);
+    }
+
+    .opened .envelope-back-flap {
+      transform: rotateX(180deg);
+    }
+
+    .opened .paper-preview {
+      transform: translateY(-95px) scale(0.96);
+      opacity: 0;
+    }
+
+    .letter-screen {
+      width: 100%;
+      display: none;
+      opacity: 0;
+      transform: translateY(26px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .show-letter .envelope-screen {
+      display: none;
+    }
+
+    .show-letter .letter-screen {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .letter-paper {
+      width: 100%;
+      background:
+        linear-gradient(rgba(255, 246, 221, 0.95), rgba(239, 211, 162, 0.96)),
+        repeating-linear-gradient(
+          0deg,
+          rgba(120, 70, 35, 0.04) 0px,
+          rgba(120, 70, 35, 0.04) 1px,
+          transparent 1px,
+          transparent 31px
+        );
+      border-radius: 18px;
+      padding: 28px 22px;
+      box-shadow: 0 20px 46px rgba(0, 0, 0, 0.38);
+      border: 1px solid rgba(105, 61, 30, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .letter-paper::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 18% 14%, rgba(120, 70, 35, 0.09), transparent 24%),
+        radial-gradient(circle at 82% 72%, rgba(120, 70, 35, 0.08), transparent 26%),
+        radial-gradient(circle at 50% 100%, rgba(120, 70, 35, 0.08), transparent 30%);
+      pointer-events: none;
+    }
+
+    .letter-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .letter-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: 42px;
+      line-height: 1.1;
+      margin: 0 0 10px;
+      text-align: center;
+      color: #5d321d;
+    }
+
+    .letter-subtitle {
+      text-align: center;
+      margin: 0 0 24px;
+      font-size: 15px;
+      opacity: 0.78;
+    }
+
+    .letter-text {
+      font-family: 'Dancing Script', cursive;
+      font-size: 28px;
+      line-height: 1.55;
+      white-space: pre-line;
+      color: #4a2d1e;
+    }
+
+    .video-box {
+      margin-top: 28px;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 9px 24px rgba(0, 0, 0, 0.24);
+      background: #000;
+    }
+
+    .video-box iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 0;
+      display: block;
+    }
+
+    .back-note {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 13px;
+      opacity: 0.68;
+    }
+
+    @media (max-width: 380px) {
+      body {
+        padding: 14px;
+      }
+
+      .envelope {
+        max-width: 315px;
+        height: 215px;
+      }
+
+      .paper-preview {
+        left: 22px;
+        right: 22px;
+        top: 52px;
+        height: 118px;
+        font-size: 23px;
+      }
+
+      .letter-title {
+        font-size: 36px;
+      }
+
+      .letter-text {
+        font-size: 25px;
+      }
+
+      .letter-paper {
+        padding: 24px 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app" id="app">
+    <section class="envelope-screen" id="envelopeScreen">
+      <div class="envelope" id="envelope">
+        <div class="envelope-back-flap"></div>
+        <div class="paper-preview">Một lá thư gửi bạn...</div>
+        <div class="envelope-left"></div>
+        <div class="envelope-right"></div>
+        <div class="envelope-front"></div>
+      </div>
+
+      <button class="open-button" id="openButton">Mở thư</button>
+    </section>
+
+    <section class="letter-screen" id="letterScreen">
+      <article class="letter-paper">
+        <div class="letter-content">
+          <h1 class="letter-title" id="letterTitle"></h1>
+          <p class="letter-subtitle" id="letterSubtitle"></p>
+          <div class="letter-text" id="letterText"></div>
+          <div class="video-box" id="videoBox"></div>
+          <div class="back-note">Lá thư này được viết riêng cho bạn.</div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const TRACKING_URL = 'https://script.google.com/macros/s/AKfycbwXziQIs0xnzDVoP7Wnj0-I-3G9ubMlqAcaU3NfA96x9h-eBXXn3rQZnJ-ujvm9SEEp/exec';
+
+    const LETTERS = {
+      'thu-01': {
+        title: 'Gửi bạn',
+        subtitle: 'Lá thư số 01',
+        text: `Có những điều không cần nói thật lớn,
+chỉ cần được viết ra một cách dịu dàng.
+
+Mong rằng khi bạn đọc những dòng này,
+bạn sẽ cảm thấy mình đang được nhớ đến,
+được trân trọng,
+và được gửi một chút bình yên.`,
+        youtubeId: '0yGNjxPI3lE&list=RDfIv9V9BmyF4&index=3'
+      },
+
+      'thu-02': {
+        title: 'Một ngày dịu lại',
+        subtitle: 'Lá thư số 02',
+        text: `Hôm nay, mình mong bạn đừng quá vội.
+
+Có những ngày chỉ cần thở chậm hơn một chút,
+uống một ngụm nước,
+nhìn bầu trời lâu hơn vài giây,
+vậy cũng đã là tốt rồi.`,
+        youtubeId: 'dQw4w9WgXcQ'
+      },
+
+      'thu-03': {
+        title: 'Điều muốn nói',
+        subtitle: 'Lá thư số 03',
+        text: `Nếu có một điều mình muốn gửi đến bạn,
+thì đó là lời cảm ơn.
+
+Cảm ơn vì đã xuất hiện,
+vì đã đi qua những ngày không dễ dàng,
+và vì vẫn giữ trong mình một phần rất đẹp.`,
+        youtubeId: 'dQw4w9WgXcQ'
+      },
+
+      'thu-04': {
+        title: 'Một chút bình yên',
+        subtitle: 'Lá thư số 04',
+        text: `Mong bạn có một nơi để trở về,
+một người để nhớ,
+và một khoảnh khắc khiến lòng mình mềm lại.
+
+Không cần mọi thứ phải hoàn hảo,
+chỉ cần hôm nay nhẹ hơn hôm qua một chút.`,
+        youtubeId: 'dQw4w9WgXcQ'
+      },
+
+      'thu-05': {
+        title: 'Cho những ngày mỏi mệt',
+        subtitle: 'Lá thư số 05',
+        text: `Nếu hôm nay bạn thấy mệt,
+hãy cho mình quyền được nghỉ.
+
+Không phải lúc nào mạnh mẽ cũng là phải bước tiếp thật nhanh.
+Đôi khi mạnh mẽ là biết dừng lại,
+ôm lấy chính mình một chút.`,
+        youtubeId: 'dQw4w9WgXcQ'
+      },
+
+      'thu-06': {
+        title: 'Một lời nhắn nhỏ',
+        subtitle: 'Lá thư số 06',
+        text: `Bạn không cần phải trở thành ai khác
+để xứng đáng được yêu thương.
+
+Có những điều đẹp nhất ở một người
+lại nằm trong những phần rất bình thường,
+rất thật,
+và rất riêng.`,
+        youtubeId: 'dQw4w9WgXcQ'
+      },
+
+      'thu-07': {
+        title: 'Khi bạn cần được nghe',
+        subtitle: 'Lá thư số 07',
+        text: `Mình không biết hôm nay bạn đã trải qua những gì,
+nhưng mình mong bạn biết rằng:
+bạn đã cố gắng nhiều rồi.
+
+Và dù chưa ai nhìn thấy hết,
+điều đó vẫn rất đáng quý.`,
+        youtubeId: 'dQw4w9WgXcQ'
+      },
+
+      'thu-08': {
+        title: 'Giữ lại một điều đẹp',
+        subtitle: 'Lá thư số 08',
+        text: `Có thể ngày mai mọi thứ sẽ khác.
+Có thể chúng ta cũng sẽ khác.
+
+Nhưng mong rằng trong lòng bạn
+vẫn giữ lại được một điều gì đó ấm áp
+từ hôm nay.`,
+        youtubeId: 'dQw4w9WgXcQ'
+      },
+
+      'thu-09': {
+        title: 'Một góc ký ức',
+        subtitle: 'Lá thư số 09',
+        text: `Nếu ký ức có màu,
+mình nghĩ có những khoảnh khắc sẽ có màu của nắng cũ.
+
+Không rực rỡ,
+không ồn ào,
+nhưng đủ để mỗi lần nhớ lại,
+trái tim thấy mềm hơn.`,
+        youtubeId: 'dQw4w9WgXcQ'
+      },
+
+      'thu-10': {
+        title: 'Lá thư cuối cùng',
+        subtitle: 'Lá thư số 10',
+        text: `Sau tất cả,
+mình chỉ mong bạn luôn tìm được một lý do
+để mỉm cười.
+
+Dù là một bản nhạc,
+một buổi chiều yên tĩnh,
+hay một dòng thư nhỏ như thế này.`,
+        youtubeId: 'dQw4w9WgXcQ'
+      }
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const letterId = params.get('id') || 'thu-01';
+    const letter = LETTERS[letterId] || LETTERS['thu-01'];
+
+    document.getElementById('letterTitle').innerText = letter.title;
+    document.getElementById('letterSubtitle').innerText = letter.subtitle;
+    document.getElementById('letterText').innerText = letter.text;
+
+    document.getElementById('videoBox').innerHTML = `
+      <iframe
+        src="https://www.youtube.com/embed/${letter.youtubeId}"
+        title="YouTube video"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+        loading="lazy">
+      </iframe>
+    `;
+
+    function trackEvent(eventName) {
+      if (!TRACKING_URL || TRACKING_URL.includes('DAN_LINK_APPS_SCRIPT')) {
+        return;
+      }
+
+      const data = new URLSearchParams({
+        letterId: letterId,
+        event: eventName,
+        tz: Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+        ua: navigator.userAgent.slice(0, 180)
+      });
+
+      const img = new Image();
+      img.src = TRACKING_URL + '?' + data.toString() + '&t=' + Date.now();
+    }
+
+    trackEvent('visit');
+
+    document.getElementById('openButton').addEventListener('click', function () {
+      document.getElementById('envelopeScreen').classList.add('opened');
+      trackEvent('open');
+
+      setTimeout(function () {
+        document.getElementById('app').classList.add('show-letter');
+      }, 850);
+    });
+  </script>
+</body>
+</html>
