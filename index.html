@@ -476,8 +476,31 @@ hay một dòng thư nhỏ như thế này.`,
     };
 
     const params = new URLSearchParams(window.location.search);
-    const letterId = params.get('id') || 'thu-01';
-    const letter = LETTERS[letterId] || LETTERS['thu-01'];
+const letterId = params.get('id');
+
+if (!letterId || !LETTERS[letterId]) {
+  document.body.innerHTML = `
+    <main style="
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      text-align:center;
+      font-family:serif;
+      color:#4b2e1e;
+      background:#f3dec0;
+    ">
+      <div>
+        <h1 style="margin-bottom:10px;">Không tìm thấy lá thư</h1>
+        <p>Đường link này không đúng hoặc lá thư không còn tồn tại.</p>
+      </div>
+    </main>
+  `;
+  throw new Error('Invalid letter id');
+}
+
+const letter = LETTERS[letterId];
 
     document.getElementById('letterTitle').innerText = letter.title;
     document.getElementById('letterSubtitle').innerText = letter.subtitle;
